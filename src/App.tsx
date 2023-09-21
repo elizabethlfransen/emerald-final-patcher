@@ -1,23 +1,19 @@
 import '@fontsource/inter'
 import {
     Box,
-    Button,
+    Button, Card, CardActions, CardContent,
     CssVarsProvider,
-    extendTheme,
-    FormControl,
-    FormLabel,
-    Input,
-    Link,
-    Sheet,
-    Typography
+    extendTheme
 } from "@mui/joy";
 import {THEME} from "./theme.ts";
 import {VersionBar} from "./components/VersionBar.tsx";
 import {ToolBar} from "./components/ToolBar.tsx";
+import {PatchForm} from "./components/PatchForm.tsx";
 
 
 function FormCard() {
-    return (<Sheet
+    return (<Card
+        component={"form"}
         sx={(theme) => ({
             boxSizing: "border-box",
             width: {
@@ -32,8 +28,6 @@ function FormCard() {
             px: 2, // padding left & right
             display: 'flex',
             flexDirection: 'column',
-            gap: 2,
-            borderRadius: 'sm',
             boxShadow: 'md',
             [theme.breakpoints.down('md')]: {
                 m: 0,
@@ -44,42 +38,17 @@ function FormCard() {
         })}
         variant="outlined"
     >
-        <Box>
-            <div>
-                <Typography level="h4" component="h1">
-                    <b>Welcome!</b>
-                </Typography>
-                <Typography level="body-sm">Sign in to continue.</Typography>
-            </div>
-            <FormControl>
-                <FormLabel>Email</FormLabel>
-                <Input
-                    // html input attribute
-                    name="email"
-                    type="email"
-                    placeholder="johndoe@email.com"
-                />
-            </FormControl>
-            <FormControl>
-                <FormLabel>Password</FormLabel>
-                <Input
-                    // html input attribute
-                    name="password"
-                    type="password"
-                    placeholder="password"
-                />
-            </FormControl>
-
-            <Button sx={{mt: 1 /* margin top */}}>Log in</Button>
-            <Typography
-                endDecorator={<Link href="/sign-up">Sign up</Link>}
-                fontSize="sm"
-                sx={{alignSelf: 'center'}}
-            >
-                Don&apos;t have an account?
-            </Typography>
-        </Box>
-    </Sheet>);
+        <CardContent>
+            <PatchForm/>
+        </CardContent>
+        <CardActions>
+            <Box>
+                <Button variant="solid" color="primary">
+                    Patch
+                </Button>
+            </Box>
+        </CardActions>
+    </Card>);
 }
 
 function App() {
