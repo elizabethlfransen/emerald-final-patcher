@@ -43,7 +43,7 @@ export function FileDropzone({label, fullWidth}: FileDropzoneProps) {
                  }}>
                 <Upload sx={{mr: 1}}/>
                 <Typography>
-                    Drop items here or <Typography fontWeight={"bold"}>Browse files</Typography>
+                    Drop rom here or <Typography fontWeight={"bold"}>Click to Browse files</Typography>
                 </Typography>
             </Box>
             <Alert color={"neutral"} sx={{mb: 2}}>
