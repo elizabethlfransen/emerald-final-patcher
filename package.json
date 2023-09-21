@@ -1,7 +1,7 @@
 {
   "name": "emerald-final-patcher",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,8 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@fontsource/inter": "^5.0.8",
+    "@mui/icons-material": "^5.14.9",
+    "@mui/joy": "^5.0.0-beta.7",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "sass": "^1.68.0",
+    "@mui/material": "npm:@mui/joy@latest"
+  },
+  "resolutions": {
+    "@mui/material": "npm:@mui/joy@latest"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

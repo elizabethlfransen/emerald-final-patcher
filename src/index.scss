@@ -1,0 +1,32 @@
+
+html[data-joy-color-scheme="dark"] {
+  background-color: var(--joy-palette-neutral-800);
+}
+
+html[data-joy-color-scheme="light"] {
+  background-color: var(--joy-palette-neutral-100);
+}
+
+body {
+  margin: 0;
+}
+
+.MuiTypography-title-lg,
+.MuiTypography-title-md,
+.MuiTypography-title-sm {
+  text-transform: uppercase;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex-grow: 1;
+  overflow: auto;
+}
