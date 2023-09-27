@@ -22,13 +22,13 @@ function selectablePatch<T extends Record<string, string>>({
     };
 }
 
-function selectablePatches<T extends Record<string, PartialSelectablePatchOptions<never>>>(options: T): {
+function selectablePatches<T extends Record<string, PartialSelectablePatchOptions<Record<string, string>>>>(options: T): {
     [key in keyof T]: SelectablePatchOptions<T[key]["options"]>
 } {
     return Object.fromEntries(
         Object.entries(options)
             .map(([k, v]) => [k, selectablePatch(v)])
-    )
+    ) as ReturnType<typeof selectablePatches<T>>
 }
 
 
@@ -55,7 +55,7 @@ function toggleablePatches<T extends Record<string, PartialToggleablePatchOption
     return Object.fromEntries(
         Object.entries(options)
             .map(([k,v]) => [k, toggleablePatch(v)])
-    );
+    ) as ReturnType<typeof toggleablePatches<T>>;
 }
 
 export interface RomFileOptions {
@@ -144,7 +144,23 @@ export const SELECTABLE_PATCHES = selectablePatches({
     }
 });
 
-export const TOGGLEABLE_PATCHES = toggleablePatches({
+export const TOGGLEABLE_PATCHES: {
+    expShare: ToggleablePatchOptions;
+    decap: ToggleablePatchOptions;
+    moveFasterUnderwater: ToggleablePatchOptions;
+    disableBikeMusic: ToggleablePatchOptions;
+    loreFriendlyEvos: ToggleablePatchOptions;
+    poisonUpdate: ToggleablePatchOptions;
+    noFleeingPokemonInSafariZone: ToggleablePatchOptions;
+    berriesNoLongerDisapear: ToggleablePatchOptions;
+    modernStats: ToggleablePatchOptions;
+    disableRandomPokenavCalls: ToggleablePatchOptions;
+    autoNickName: ToggleablePatchOptions;
+    noDarkCaves: ToggleablePatchOptions;
+    prngFix: ToggleablePatchOptions;
+    hiddenAbilities: ToggleablePatchOptions;
+    gen4LiteMovesets: ToggleablePatchOptions
+} = toggleablePatches({
     expShare: {
         label: "Gen VI Exp Share",
     },
@@ -200,4 +216,5 @@ export const DEFAULT_FORM_DATA : FormData = Object.fromEntries(
         .map(x => Object.entries(x))
         .flat()
         .map(([k,v]) => [k,v.defaultValue])
-)
+) as FormData
+
