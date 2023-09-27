@@ -4,7 +4,7 @@ html[data-joy-color-scheme="dark"] {
 }
 
 html[data-joy-color-scheme="light"] {
-  background-color: var(--joy-palette-neutral-100);
+  background-color: var(--joy-palette-neutral-300);
 }
 
 body {
@@ -29,4 +29,8 @@ html, body, #root {
 main {
   flex-grow: 1;
   overflow: auto;
+}
+
+.MuiFormLabel-root {
+  text-transform: uppercase;
 }

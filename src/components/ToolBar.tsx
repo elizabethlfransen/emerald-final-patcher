@@ -37,18 +37,22 @@ function ModeToggle() {
 }
 
 export function ToolBar() {
+    const {mode} = useColorScheme();
+
+
     return (
         <Sheet sx={{
             px: 1,
             py: 2,
-            borderLeft: 'none',
-            borderRight: 'none',
-            borderTop: 'none',
+            border: "none",
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            backgroundColor: mode === 'dark' ? 'neutral.900' : 'primary.500',
+            color: mode === 'dark' ? 'primary.500' : 'neutral.700',
+            boxShadow: 'sm'
         }} variant={"outlined"}>
             <Box px={2}>
-                <Typography level={"title-lg"} color={"primary"} mr={2}>Emerald Final Patcher</Typography>
+                <Typography level={"title-lg"} color={"inherit"} mr={2}>Emerald Final Patcher</Typography>
             </Box>
             <Box sx={{
                 ml: "auto",
