@@ -12,9 +12,6 @@ import {
     TOGGLEABLE_PATCHES,
     ToggleablePatchOptions
 } from "../form.ts";
-import {lib} from "crypto-js";
-
-const {WordArray} = lib;
 
 interface RadioFormFieldProps<S extends Record<string, string>> {
     options: SelectablePatchOptions<S>,

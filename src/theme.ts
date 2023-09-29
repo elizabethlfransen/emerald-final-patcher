@@ -1,8 +1,5 @@
 import {extendTheme} from "@mui/joy";
 
-
-
-
 export const THEME = extendTheme({
     breakpoints: {
         sm: 576,

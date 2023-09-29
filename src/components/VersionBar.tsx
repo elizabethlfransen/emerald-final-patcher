@@ -3,7 +3,7 @@ import PackageDetails from "../../package.json";
 
 export function VersionBar() {
     return (
-        <Sheet variant={"outline"} sx={{
+        <Sheet variant={"outlined"} sx={{
             p: 1,
             display: 'flex',
             borderLeft: 'none',

@@ -52,7 +52,7 @@ export function ToolBar() {
             boxShadow: 'sm'
         }} variant={"outlined"}>
             <Box px={2}>
-                <Typography level={"title-lg"} color={"inherit"} mr={2}>Emerald Final Patcher</Typography>
+                <Typography level={"title-lg"} sx={{color: "inherit"}} mr={2}>Emerald Final Patcher</Typography>
             </Box>
             <Box sx={{
                 ml: "auto",
