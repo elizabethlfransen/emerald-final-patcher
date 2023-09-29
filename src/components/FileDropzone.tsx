@@ -178,7 +178,7 @@ export function FileDropzone({label, fullWidth, value, onChange, expectedHash}: 
     const preventDrag = useCallback((e: DragEvent) => {
         e.stopPropagation();
         e.preventDefault();
-    });
+    },[]);
     const stopDragging = useCallback(() => {
         setDragging(false);
     }, []);

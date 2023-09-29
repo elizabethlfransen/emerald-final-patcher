@@ -82,19 +82,44 @@ interface ToggleFormFieldProps {
     name: string
 }
 
-function ToggleFormField({options: {label, requires}, name}: ToggleFormFieldProps) {
+function ToggleFormField({options: {label, requires, info}, name}: ToggleFormFieldProps) {
 
 
     const formData = useWatch() as AppFormData
 
     const visible = useMemo(() => requires(formData), [requires, formData]);
+
+    const [modalOpen, setModalOpen] = useState(false);
+
     return (
         <Box sx={{
             display: visible ? 'contents' : 'none'
         }}>
             <Controller name={name} render={({field: {value, onChange}}) => {
                 return (
-                    <Checkbox label={label} checked={value} onChange={onChange}/>
+                    <Box sx={{
+                        display: "flex"
+                    }}>
+                        <Checkbox label={label} checked={value} onChange={onChange}/>
+                        {info && <Box sx={{
+                            display: "inline-block",
+                            ml: 0.75,
+                            cursor: "pointer"
+                        }}
+                                      onClick={() => setModalOpen(true)}>
+                            <Info size={"sm"}/>
+                        </Box>
+                        }
+                        {info && (
+                            <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+                                <ModalDialog variant={"soft"}>
+                                    <ModalClose/>
+                                    <DialogTitle>{label}</DialogTitle>
+                                    <DialogContent>{info}</DialogContent>
+                                </ModalDialog>
+                            </Modal>
+                        )}
+                    </Box>
                 )
             }}/>
         </Box>
