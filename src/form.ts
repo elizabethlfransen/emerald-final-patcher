@@ -1,7 +1,9 @@
+import {FileDropzoneType, FileDropzoneValue, NoFileDropzoneValue} from "./components/FileDropzone.tsx";
+
 interface PartialSelectablePatchOptions<T extends Record<string, string>> {
     label: string,
     options: T,
-    requires?: (data: FormData) => boolean,
+    requires?: (data: AppFormData) => boolean,
     defaultValue?: keyof T
 }
 
@@ -36,7 +38,7 @@ function selectablePatches<T extends Record<string, PartialSelectablePatchOption
 interface PartialToggleablePatchOptions {
     label: string,
     defaultValue?: boolean,
-    requires?: (data: FormData) => boolean,
+    requires?: (data: AppFormData) => boolean,
 }
 
 export type ToggleablePatchOptions = Required<PartialToggleablePatchOptions>
@@ -58,12 +60,14 @@ function toggleablePatches<T extends Record<string, PartialToggleablePatchOption
     ) as ReturnType<typeof toggleablePatches<T>>;
 }
 
+
 export interface RomFileOptions {
     label: string,
-    defaultValue: null
+    defaultValue: NoFileDropzoneValue,
+    expectedHash?: string
 }
 
-export type FormData = SelectablePatchesData & ToggleablePatchesData & RomFileData;
+export type AppFormData = SelectablePatchesData & ToggleablePatchesData & RomFileData;
 
 type SelectablePatchesData = {
     [key in keyof typeof SELECTABLE_PATCHES]: keyof typeof SELECTABLE_PATCHES[key]["options"]
@@ -74,13 +78,16 @@ type ToggleablePatchesData = {
 };
 
 type RomFileData = {
-    [key in keyof typeof ROM_FILE]: File | null
+    [key in keyof typeof ROM_FILE]: FileDropzoneValue | null
 }
 
 export const ROM_FILE = {
     romFile: {
         label: "Pokemon Emerald Rom",
-        defaultValue: null
+        defaultValue: {
+            type: FileDropzoneType.NO_FILE
+        },
+        expectedHash: "a9dec84dfe7f62ab2220bafaef7479da0929d066ece16a6885f6226db19085af"
     }
 } satisfies Record<string, RomFileOptions>;
 
@@ -173,7 +180,7 @@ export const TOGGLEABLE_PATCHES: {
     modernStats: {
         label: "Modern Stats"
     },
-    berriesNoLongerDisapear: {
+    berriesNoLongerDisappear: {
         label: "Berries No Longer Disappear"
     },
     noDarkCaves: {
@@ -211,10 +218,10 @@ export const TOGGLEABLE_PATCHES: {
 });
 
 
-export const DEFAULT_FORM_DATA : FormData = Object.fromEntries(
+export const DEFAULT_FORM_DATA : AppFormData = Object.fromEntries(
     [ROM_FILE,SELECTABLE_PATCHES,TOGGLEABLE_PATCHES]
         .map(x => Object.entries(x))
         .flat()
         .map(([k,v]) => [k,v.defaultValue])
-) as FormData
+) as AppFormData
 

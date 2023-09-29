@@ -1,20 +1,30 @@
 import {Box, Checkbox, FormControl, FormLabel, RadioGroup, Typography} from "@mui/joy";
 import {FileDropzone} from "./FileDropzone.tsx";
 import {LargeRadioButton} from "./LargeRadioButton.tsx";
-import { useMemo} from "react";
+import {useMemo} from "react";
 import {Controller, useWatch} from "react-hook-form";
-import {TOGGLEABLE_PATCHES, SELECTABLE_PATCHES, SelectablePatchOptions, ToggleablePatchOptions} from "../form.ts";
+import {
+    AppFormData,
+    ROM_FILE,
+    RomFileOptions,
+    SELECTABLE_PATCHES,
+    SelectablePatchOptions,
+    TOGGLEABLE_PATCHES,
+    ToggleablePatchOptions
+} from "../form.ts";
+import {lib} from "crypto-js";
 
+const {WordArray} = lib;
 
-interface RadioFormFieldProps {
-    options: SelectablePatchOptions,
+interface RadioFormFieldProps<S extends Record<string, string>> {
+    options: SelectablePatchOptions<S>,
     name: string
 }
 
-export function RadioFormField({options: {options, requires, label}, name}: RadioFormFieldProps) {
+export function RadioFormField<S extends Record<string, string>>({options: {options, requires, label}, name}: RadioFormFieldProps<S>) {
     const optionEntries = useMemo(() => Object.entries(options), [options]);
 
-    const formData = useWatch()
+    const formData = useWatch() as AppFormData
 
     const visible = useMemo(() => requires(formData), [requires, formData]);
 
@@ -54,7 +64,7 @@ interface ToggleFormFieldProps {
 export function ToggleFormField({options: {label, requires}, name}: ToggleFormFieldProps) {
 
 
-    const formData = useWatch()
+    const formData = useWatch() as AppFormData
 
     const visible = useMemo(() => requires(formData), [requires, formData]);
     return (
@@ -70,6 +80,19 @@ export function ToggleFormField({options: {label, requires}, name}: ToggleFormFi
     );
 }
 
+interface FileFormFieldProps {
+    name: string,
+    options: RomFileOptions
+}
+
+export function FileFormField({options: {label,expectedHash}, name}: FileFormFieldProps) {
+    return (
+        <Controller name={name} render={({field: {value, onChange}}) => (
+            <FileDropzone label={label} value={value} onChange={onChange} expectedHash={expectedHash}/>
+        )} />
+    );
+}
+
 export function PatchForm() {
     return (
         <Box sx={{
@@ -77,10 +100,13 @@ export function PatchForm() {
             flexDirection: 'column',
             gap: 4
         }}>
-            <FileDropzone label={"Pokemon Emerald Rom"}/>
+            {
+                Object.entries(ROM_FILE)
+                    .map(([name, options] ) => (<FileFormField key={name} name={name} options={options}/>))
+            }
             {
                 Object.entries(SELECTABLE_PATCHES)
-                    .map(([name, options]) => (<RadioFormField key={name} name={name} options={options}/>))
+                    .map(([name, options]) => (<RadioFormField<Record<string,string>> key={name} name={name} options={options}/>))
             }
             <Box sx={{
                 display: 'flex',
