@@ -10,8 +10,7 @@ import {VersionBar} from "./components/VersionBar.tsx";
 import {ToolBar} from "./components/ToolBar.tsx";
 import {PatchForm} from "./components/PatchForm.tsx";
 import {FormProvider, useForm} from "react-hook-form";
-import './form.ts'
-import {DEFAULT_FORM_DATA} from "./form.ts";
+import {DEFAULT_FORM_DATA} from "./form.tsx";
 
 
 function FormCard() {
