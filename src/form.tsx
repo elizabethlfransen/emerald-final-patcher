@@ -1,41 +1,33 @@
-import {FileDropzoneType, FileDropzoneValue, NoFileDropzoneValue} from "./components/FileDropzone.tsx";
+import {FileDropzoneType, FileDropzoneValue, NoFileDropzoneValue, RomFile} from "./components/FileDropzone.tsx";
 import {ReactNode} from "react";
-import {Patcher} from "./patcher.ts";
 
-type ApplyPatch<T, P extends Patch> = (options: {
-    key: string, value: T, formData: AppFormData, patch: P, patcher: Patcher
-}) => void;
-
-interface PartialSelectablePatchOptions<T extends Record<string, string>> {
+interface PartialSelectablePatchOptions {
     label: string,
-    options: T,
+    options: Record<string,string>,
     requires?: (data: AppFormData) => boolean,
-    defaultValue?: keyof T,
+    defaultValue?: string,
     info?: ReactNode,
     priority?: number,
-    apply?: ApplyPatch<keyof T, SelectablePatchOptions<T>>
 }
 
-export interface SelectablePatchOptions<T extends Record<string, string>> {
+export interface SelectablePatchOptions {
     label: string,
-    options: T,
+    options: Record<string,string>,
     requires: (data: AppFormData) => boolean,
-    defaultValue: keyof T,
+    defaultValue: string,
     info?: ReactNode,
     priority: number,
-    apply: ApplyPatch<keyof T, SelectablePatchOptions<T>>
 }
 
 
-function selectablePatch<T extends Record<string, string>>({
+function selectablePatch({
                                                                defaultValue,
                                                                label,
                                                                options,
                                                                requires,
                                                                info,
-                                                               priority,
-                                                               apply
-                                                           }: PartialSelectablePatchOptions<T>): SelectablePatchOptions<T> {
+                                                               priority
+                                                           }: PartialSelectablePatchOptions): SelectablePatchOptions {
     return {
         label,
         options,
@@ -43,16 +35,12 @@ function selectablePatch<T extends Record<string, string>>({
         defaultValue: defaultValue ?? Object.keys(options)[0],
         info,
         priority: priority ?? 0,
-        apply: apply ?? (() => {
-        })
     };
 }
 
-function selectablePatches<T extends Record<string, PartialSelectablePatchOptions<Record<string, string>>>>(options: T): {
-    [key in keyof T]: SelectablePatchOptions<T[key]["options"]>
-} {
+function selectablePatches(options: Record<string, PartialSelectablePatchOptions>) {
     return Object.fromEntries(Object.entries(options)
-        .map(([k, v]) => [k, selectablePatch(v)])) as ReturnType<typeof selectablePatches<T>>
+        .map(([k, v]) => [k, selectablePatch(v)])) as Record<string, SelectablePatchOptions>
 }
 
 
@@ -62,7 +50,6 @@ interface PartialToggleablePatchOptions {
     requires?: (data: AppFormData) => boolean,
     info?: ReactNode,
     priority?: number,
-    apply?: ApplyPatch<boolean, ToggleablePatchOptions>
 }
 
 
@@ -72,11 +59,10 @@ interface ToggleablePatchOptions {
     requires: (data: AppFormData) => boolean,
     info?: ReactNode,
     priority: number,
-    apply: ApplyPatch<boolean, ToggleablePatchOptions>
 }
 
 function toggleablePatch({
-                             defaultValue, label, requires, info, priority, apply
+                             defaultValue, label, requires, info, priority,
                          }: PartialToggleablePatchOptions): ToggleablePatchOptions {
     return {
         label,
@@ -84,16 +70,12 @@ function toggleablePatch({
         requires: requires ?? (() => true),
         info: info,
         priority: priority ?? 0,
-        apply: apply ?? (() => {
-        })
     };
 }
 
-function toggleablePatches<T extends Record<string, PartialToggleablePatchOptions>>(options: T): {
-    [key in keyof T]: ToggleablePatchOptions
-} {
+function toggleablePatches(options: Record<string,PartialToggleablePatchOptions>): Record<string,ToggleablePatchOptions> {
     return Object.fromEntries(Object.entries(options)
-        .map(([k, v]) => [k, toggleablePatch(v)])) as ReturnType<typeof toggleablePatches<T>>;
+        .map(([k, v]) => [k, toggleablePatch(v)]));
 }
 
 
@@ -103,19 +85,8 @@ export interface RomFileOptions {
     expectedHash?: string
 }
 
-export type AppFormData = SelectablePatchesData & ToggleablePatchesData & RomFileData;
+export type AppFormData = Record<string, string | boolean | FileDropzoneValue | null>;
 
-type SelectablePatchesData = {
-    [key in keyof typeof SELECTABLE_PATCHES]: keyof typeof SELECTABLE_PATCHES[key]["options"]
-};
-
-type ToggleablePatchesData = {
-    [key in keyof typeof TOGGLEABLE_PATCHES]: boolean
-};
-
-type RomFileData = {
-    [key in keyof typeof ROM_FILE]: FileDropzoneValue | null
-}
 
 export const ROM_FILE = {
     romFile: {
@@ -125,40 +96,9 @@ export const ROM_FILE = {
     }
 } satisfies Record<string, RomFileOptions>;
 
-function getName(value: string | boolean, key: string) {
-    if (typeof value === "boolean")
-        return key;
-    return value;
-}
 
 
-const pushPath: ApplyPatch<string | boolean, Patch> = ({value, key, patcher}) => {
-    patcher.pushPath(getName(value, key))
-};
-
-const ips: ApplyPatch<string | boolean, Patch> = ({value, key, patcher, patch: {priority}}) => {
-    patcher.addIps(getName(value, key), priority)
-};
-
-
-
-
-export function applyAdvancedPatches(data: AppFormData, patcher: Patcher) {
-
-}
-
-export const SELECTABLE_PATCHES: {
-    egg: SelectablePatchOptions<{
-        tyrogue: string;
-        def: string;
-        wynaut: string
-    }>;
-    variant: SelectablePatchOptions<{ vanillaWildsPlus: string; vanillaWilds: string; newWilds: string }>;
-    dns: SelectablePatchOptions<{ def: string; disable: string; inBattle: string }>;
-    moveStats: SelectablePatchOptions<{ vi: string; def: string; v: string; iv: string }>;
-    sprites: SelectablePatchOptions<{ moemon: string; def: string; geniv: string }>;
-    base: SelectablePatchOptions<{ deluxe: string; legacy: string }>
-} = selectablePatches({
+export const SELECTABLE_PATCHES = selectablePatches({
     base: {
         label: "Patch Base",
         options: {
@@ -178,8 +118,7 @@ export const SELECTABLE_PATCHES: {
                     Legacy has all the features minus Gen 4 additions.
                 </p>
             </>
-        ),
-        apply: pushPath
+        )
     }, variant: {
         label: "Variant",
         options: {
@@ -188,7 +127,6 @@ export const SELECTABLE_PATCHES: {
             vanillaWildsPlus: "Vanilla Wilds Plus"
         },
         priority: 1,
-        apply: ips,
         info: (
             <>
                 <p>
@@ -258,23 +196,7 @@ export const SELECTABLE_PATCHES: {
     }
 });
 
-export const TOGGLEABLE_PATCHES: {
-    expShare: ToggleablePatchOptions;
-    decap: ToggleablePatchOptions;
-    moveFasterUnderwater: ToggleablePatchOptions;
-    disableBikeMusic: ToggleablePatchOptions;
-    loreFriendlyEvos: ToggleablePatchOptions;
-    poisonUpdate: ToggleablePatchOptions;
-    noFleeingPokemonInSafariZone: ToggleablePatchOptions;
-    berriesNoLongerDisappear: ToggleablePatchOptions;
-    modernStats: ToggleablePatchOptions;
-    disableRandomPokenavCalls: ToggleablePatchOptions;
-    autoNickName: ToggleablePatchOptions;
-    noDarkCaves: ToggleablePatchOptions;
-    prngFix: ToggleablePatchOptions;
-    hiddenAbilities: ToggleablePatchOptions;
-    gen4LiteMovesets: ToggleablePatchOptions
-} = toggleablePatches({
+export const TOGGLEABLE_PATCHES= toggleablePatches({
     expShare: {
         label: "Gen VI Exp Share", info: (<>
             <p>
@@ -415,12 +337,7 @@ export const TOGGLEABLE_PATCHES: {
         </>)
     }
 });
-
-export const PATCHES: Record<string, Patch> = {
-    ...SELECTABLE_PATCHES, ...TOGGLEABLE_PATCHES
-}
-
-export type Patch = SelectablePatchOptions<any> | ToggleablePatchOptions;
+export type Patch = SelectablePatchOptions | ToggleablePatchOptions;
 
 export const DEFAULT_FORM_DATA: AppFormData = Object.fromEntries([ROM_FILE, SELECTABLE_PATCHES, TOGGLEABLE_PATCHES]
     .map(x => Object.entries(x))

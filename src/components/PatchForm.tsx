@@ -21,7 +21,6 @@ import {
     SELECTABLE_PATCHES,
     SelectablePatchOptions,
     TOGGLEABLE_PATCHES,
-    ToggleablePatchOptions
 } from "../form.tsx";
 import {Info} from "@mui/icons-material";
 
