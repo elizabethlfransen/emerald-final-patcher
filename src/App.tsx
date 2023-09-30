@@ -6,44 +6,41 @@ import {ToolBar} from "./components/ToolBar.tsx";
 import {PatchForm} from "./components/PatchForm.tsx";
 import {FormProvider, useForm} from "react-hook-form";
 import {AppFormData, DEFAULT_FORM_DATA} from "./form.tsx";
-import {useCallback, useMemo} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {FileDropzoneType, FileDropzoneValue, RomFile} from "./components/FileDropzone.tsx";
 import {saveAs} from "file-saver";
-import {IPS} from "./rom-patcher/formats/ips.ts";
-import {MarcFile} from "./rom-patcher/marc-file.ts";
-
-const ROOT_URL = "https://raw.githubusercontent.com/elizabethlfransen/emerald-final-patches/main/7.4.1/";
+import {patchRom} from "./patchRom.ts";
 
 
-async function applyVariant(data: AppFormData, romData: RomFile) {
-    if(data.base == "legacy" && data.variant == "newWilds") {
-        const url = ROOT_URL + ["Legacy Variant", "Legacy v7.41 - New Wilds.ips"]
-            .map(x => encodeURIComponent(x))
-            .join("/");
 
-        const data = new Uint8Array(await (await fetch(url)).arrayBuffer());
-        const ips = IPS.parseIPSFile(MarcFile.fromTypedArray(data));
-        ips.apply(MarcFile.fromTypedArray(romData.data)).copyToFile(MarcFile.fromTypedArray(romData.data),0);
-        // console.log(data);
 
-    }
-}
 
 function FormCard() {
     const methods = useForm({
         defaultValues: DEFAULT_FORM_DATA
     });
+    const [patchAction, setPatchAction] = useState<(signal: AbortSignal) => Promise<RomFile>>();
+    useEffect(() => {
+        if(!patchAction) return;
+        let abort = new AbortController();
+        (async () => {
+            const romFile = await patchAction(abort.signal);
+            abort.abort();
+            if(abort.signal.aborted) return;
+            saveAs(new Blob([romFile.data]),"Emerald Final.gba");
+        })();
+        return () => abort.abort();
+    }, [patchAction])
     const {handleSubmit, watch} = methods;
     const romFile = watch("romFile") as FileDropzoneValue | null;
     const validFile = useMemo(() => romFile !== null && (romFile.type === FileDropzoneType.INVALID_HASH || romFile.type == FileDropzoneType.LOADED), [romFile]);
     const patch = useCallback((data: AppFormData) => {
         const romFile = data.romFile as FileDropzoneValue | null;
         if(romFile == null || !(romFile.type === FileDropzoneType.INVALID_HASH || romFile.type == FileDropzoneType.LOADED)) return;
-        (async () => applyVariant(data, romFile.value))().then(() => {
-            saveAs(new Blob([romFile.value.data]),"Emerald Final.gba");
+        setPatchAction(() => async (signal: AbortSignal)=> {
+            await patchRom(data, signal);
+            return romFile.value;
         });
-
-        // resolve the base patch
 
     }, []);
 

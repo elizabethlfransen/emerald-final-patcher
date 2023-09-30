@@ -53,6 +53,10 @@ export class MarcFile {
         )
     }
 
+    public static fromArrayBuffer(source: ArrayBuffer): MarcFile {
+        return MarcFile.fromTypedArray(new Uint8Array(source));
+    }
+
     public static alloc(amount: number): MarcFile {
         return new MarcFile(
             'file.bin',
