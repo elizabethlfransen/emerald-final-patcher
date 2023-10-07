@@ -1,14 +1,15 @@
 import {
     Box,
-    Checkbox, DialogContent, DialogTitle,
+    Checkbox,
+    DialogContent,
+    DialogTitle,
     FormControl,
     FormLabel,
     Modal,
     ModalClose,
     ModalDialog,
     RadioGroup,
-    Tooltip,
-    Typography
+    Tooltip
 } from "@mui/joy";
 import {FileDropzone} from "./FileDropzone.tsx";
 import {LargeRadioButton} from "./LargeRadioButton.tsx";
@@ -20,16 +21,16 @@ import {
     RomFileOptions,
     SELECTABLE_PATCHES,
     SelectablePatchOptions,
-    TOGGLEABLE_PATCHES,
+    TOGGLEABLE_PATCHES, ToggleablePatchOptions,
 } from "../form.tsx";
 import {Info} from "@mui/icons-material";
 
-interface RadioFormFieldProps<S extends Record<string, string>> {
-    options: SelectablePatchOptions<S>,
+interface RadioFormFieldProps {
+    options: SelectablePatchOptions,
     name: string
 }
 
-function RadioFormField<S extends Record<string, string>>({options: {options, requires, label, info}, name}: RadioFormFieldProps<S>) {
+function RadioFormField({options: {options, requires, label, info}, name}: RadioFormFieldProps) {
     const optionEntries = useMemo(() => Object.entries(options), [options]);
 
     const formData = useWatch() as AppFormData
@@ -145,21 +146,17 @@ export function PatchForm() {
             flexDirection: 'column',
             gap: 4
         }}>
+            <FileFormField name={"romFile"} options={ROM_FILE.romFile}/>
             {
-                Object.entries(ROM_FILE)
-                    .map(([name, options]) => (<FileFormField key={name} name={name} options={options}/>))
-            }
-            {
-                Object.entries(SELECTABLE_PATCHES)
-                    .map(([name, options]) => (
-                        <RadioFormField<Record<string, string>> key={name} name={name} options={options}/>))
+                // Object.entries(SELECTABLE_PATCHES)
+                //     .map(([name, options]) => (
+                //         <RadioFormField key={name} name={name} options={options}/>))
             }
             <Box sx={{
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 2
             }}>
-                <Typography level={"title-md"}>Toggleable Patches</Typography>
                 <Box sx={{
                     display: 'grid',
                     gap: 2,
@@ -170,8 +167,8 @@ export function PatchForm() {
                 }}>
 
                     {
-                        Object.entries(TOGGLEABLE_PATCHES)
-                            .map(([name, options]) => (<ToggleFormField key={name} name={name} options={options}/>))
+                        // Object.entries(TOGGLEABLE_PATCHES)
+                        //     .map(([name, options]) => (<ToggleFormField key={name} name={name} options={options}/>))
                     }
                 </Box>
             </Box>

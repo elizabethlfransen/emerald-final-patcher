@@ -17,11 +17,14 @@
     "@mui/joy": "^5.0.0-beta.7",
     "@mui/material": "npm:@mui/joy@latest",
     "@types/file-saver": "^2.0.5",
+    "axios": "^1.5.1",
     "crypto-js": "^4.1.1",
     "file-saver": "^2.0.5",
+    "octokit": "^3.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.46.2",
+    "react-transition-group": "^4.4.5",
     "sass": "^1.68.0"
   },
   "resolutions": {
@@ -31,6 +34,7 @@
     "@types/crypto-js": "^4.1.2",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/react-transition-group": "^4.4.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react-swc": "^3.3.2",

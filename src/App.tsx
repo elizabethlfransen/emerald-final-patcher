@@ -11,19 +11,21 @@ import {FileDropzoneType, FileDropzoneValue, RomFile} from "./components/FileDro
 import {saveAs} from "file-saver";
 import {IPS} from "./rom-patcher/formats/ips.ts";
 import {MarcFile} from "./rom-patcher/marc-file.ts";
+import {PatchProvider} from "./components/PatchProvider.tsx";
+import {useGitHubPatchProvider} from "./rom-patcher/github-patch-provider.ts";
 
 const ROOT_URL = "https://raw.githubusercontent.com/elizabethlfransen/emerald-final-patches/main/7.4.1/";
 
 
 async function applyVariant(data: AppFormData, romData: RomFile) {
-    if(data.base == "legacy" && data.variant == "newWilds") {
+    if (data.base == "legacy" && data.variant == "newWilds") {
         const url = ROOT_URL + ["Legacy Variant", "Legacy v7.41 - New Wilds.ips"]
             .map(x => encodeURIComponent(x))
             .join("/");
 
         const data = new Uint8Array(await (await fetch(url)).arrayBuffer());
         const ips = IPS.parseIPSFile(MarcFile.fromTypedArray(data));
-        ips.apply(MarcFile.fromTypedArray(romData.data)).copyToFile(MarcFile.fromTypedArray(romData.data),0);
+        ips.apply(MarcFile.fromTypedArray(romData.data)).copyToFile(MarcFile.fromTypedArray(romData.data), 0);
         // console.log(data);
 
     }
@@ -38,9 +40,9 @@ function FormCard() {
     const validFile = useMemo(() => romFile !== null && (romFile.type === FileDropzoneType.INVALID_HASH || romFile.type == FileDropzoneType.LOADED), [romFile]);
     const patch = useCallback((data: AppFormData) => {
         const romFile = data.romFile as FileDropzoneValue | null;
-        if(romFile == null || !(romFile.type === FileDropzoneType.INVALID_HASH || romFile.type == FileDropzoneType.LOADED)) return;
+        if (romFile == null || !(romFile.type === FileDropzoneType.INVALID_HASH || romFile.type == FileDropzoneType.LOADED)) return;
         (async () => applyVariant(data, romFile.value))().then(() => {
-            saveAs(new Blob([romFile.value.data]),"Emerald Final.gba");
+            saveAs(new Blob([romFile.value.data]), "Emerald Final.gba");
         });
 
         // resolve the base patch
@@ -100,18 +102,21 @@ function FormCard() {
 function App() {
 
     const theme = extendTheme(THEME);
+    const patchProvider = useGitHubPatchProvider("elizabethlfransen/emerald-final-patches/dev")
 
     return (
         <CssVarsProvider theme={theme}>
-            <header>
-                <ToolBar/>
-            </header>
-            <main>
-                <FormCard/>
-            </main>
-            <footer>
-                <VersionBar/>
-            </footer>
+            <PatchProvider provider={patchProvider}>
+                <header>
+                    <ToolBar/>
+                </header>
+                <main>
+                    <FormCard/>
+                </main>
+                <footer>
+                    <VersionBar/>
+                </footer>
+            </PatchProvider>
         </CssVarsProvider>
     );
 }

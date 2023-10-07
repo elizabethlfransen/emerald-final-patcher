@@ -2,13 +2,34 @@
 /* File format specification: http://www.smwiki.net/wiki/IPS_file_format */
 
 import {MarcFile} from "../marc-file.ts";
+import {PatchFormat} from "./patch-format.ts";
 
 const IPS_MAGIC='PATCH';
-const IPS_RECORD_RLE=0x0000;
-const IPS_RECORD_SIMPLE=0x01;
 
-export class IPS {
-    records: any[]
+enum IPSRecordType {
+    RLE = 0,
+    SIMPLE = 1
+}
+
+interface RLERecord {
+    type: IPSRecordType.RLE
+    offset: number,
+    length: number,
+    byte: number
+}
+
+interface SimpleRecord {
+    type: IPSRecordType.SIMPLE
+    offset: number,
+    length: number,
+    data: number[]
+
+}
+
+type IPSRecord = RLERecord | SimpleRecord;
+
+export class IPS implements PatchFormat {
+    records: IPSRecord[]
     truncate: number
     constructor() {
 
@@ -16,16 +37,16 @@ export class IPS {
         this.truncate=0;
     }
     addSimpleRecord(o: number, d: number[]){
-        this.records.push({offset:o, type:IPS_RECORD_SIMPLE, length:d.length, data:d})
+        this.records.push({offset:o, type:IPSRecordType.SIMPLE, length:d.length, data:d})
     }
     addRLERecord(o: number, l: number, b: number){
-        this.records.push({offset:o, type:IPS_RECORD_RLE, length:l, byte:b})
+        this.records.push({offset:o, type:IPSRecordType.RLE, length:l, byte:b})
     }
     toString(){
         let nSimpleRecords=0;
         let nRLERecords=0;
         for(let i=0; i<this.records.length; i++){
-            if(this.records[i].type===IPS_RECORD_RLE)
+            if(this.records[i].type===IPSRecordType.RLE)
                 nRLERecords++;
             else
                 nSimpleRecords++;
@@ -41,22 +62,23 @@ export class IPS {
         let i;
         let patchFileSize = 5; //PATCH string
         for(i = 0; i<this.records.length; i++){
-            if(this.records[i].type===IPS_RECORD_RLE)
+            const record = this.records[i];
+            if(record.type===IPSRecordType.RLE)
                 patchFileSize+=(3+2+2+1); //offset+0x0000+length+RLE byte to be written
             else
-                patchFileSize+=(3+2+this.records[i].data.length); //offset+length+data
+                patchFileSize+=(3+2+record.data.length); //offset+length+data
         }
         patchFileSize+=3; //EOF string
         if(this.truncate)
             patchFileSize+=3; //truncate
 
-        let tempFile=MarcFile.alloc(patchFileSize);
+        const tempFile=MarcFile.alloc(patchFileSize);
         tempFile.fileName=fileName+'.ips';
         tempFile.writeString(IPS_MAGIC);
         for(i = 0; i<this.records.length; i++){
             const rec = this.records[i];
             tempFile.writeU24(rec.offset);
-            if(rec.type===IPS_RECORD_RLE){
+            if(rec.type===IPSRecordType.RLE){
                 tempFile.writeU16(0x0000);
                 tempFile.writeU16(rec.length);
                 tempFile.writeU8(rec.byte);
@@ -88,7 +110,7 @@ export class IPS {
             let newFileSize = romFile.fileSize;
             for(i = 0; i<this.records.length; i++){
                 const rec = this.records[i];
-                if(rec.type===IPS_RECORD_RLE){
+                if(rec.type===IPSRecordType.RLE){
                     if(rec.offset+rec.length>newFileSize){
                         newFileSize=rec.offset+rec.length;
                     }
@@ -112,11 +134,12 @@ export class IPS {
 
         for(i = 0; i<this.records.length; i++){
             tempFile.seek(this.records[i].offset);
-            if(this.records[i].type===IPS_RECORD_RLE){
+            const record = this.records[i];
+            if(record.type===IPSRecordType.RLE){
                 for(let j=0; j<this.records[i].length; j++)
-                    tempFile.writeU8(this.records[i].byte);
+                    tempFile.writeU8(record.byte);
             }else{
-                tempFile.writeBytes(this.records[i].data);
+                tempFile.writeBytes(record.data);
             }
         }
 
@@ -140,7 +163,7 @@ export class IPS {
 
             const length = file.readU16();
 
-            if(length===IPS_RECORD_RLE){
+            if(length===IPSRecordType.RLE){
                 patchFile.addRLERecord(offset, file.readU16(), file.readU8());
             }else{
                 patchFile.addSimpleRecord(offset, file.readBytes(length));

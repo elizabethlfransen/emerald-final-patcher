@@ -1,4 +1,4 @@
-import {FileDropzoneType, FileDropzoneValue, NoFileDropzoneValue, RomFile} from "./components/FileDropzone.tsx";
+import {FileDropzoneType, FileDropzoneValue, NoFileDropzoneValue} from "./components/FileDropzone.tsx";
 import {ReactNode} from "react";
 
 interface PartialSelectablePatchOptions {
@@ -53,7 +53,7 @@ interface PartialToggleablePatchOptions {
 }
 
 
-interface ToggleablePatchOptions {
+export interface ToggleablePatchOptions {
     label: string,
     defaultValue: boolean,
     requires: (data: AppFormData) => boolean,
